@@ -10,7 +10,8 @@ namespace CryptographyTests
         [TestMethod]
         public void TestMethod1()
         {
-            var cc = new Cryptography().CreateContext(0, Algorithm.Dh);
+            var cc = new Cryptography().CreateContext(Cryptography.Unused, Algorithm.Dh);
+            
         }
     }
 }

@@ -60,3 +60,24 @@ void Cryptography::DestroyContext(CryptContext context)
 	EvaluateMethodResult(cryptDestroyContext(context));
 }
 
+void Cryptography::DestroyObject(CryptObject object)
+{
+	
+}
+
+void Cryptography::GenerateKey(CryptContext context)
+{
+	
+}
+
+array<System::Byte>^ Cryptography::Encrypt(CryptContext context, String^ data)
+{
+	auto encryptedData = gcnew array<Byte> (10);
+	return encryptedData;
+}
+
+array<System::Byte>^ Cryptography::Encrypt(CryptContext context, array<Byte>^ data)
+{
+	auto encryptedData = gcnew array<Byte>(10);
+	return encryptedData;
+}

@@ -16,6 +16,7 @@ using namespace System;
 
 typedef int CryptContext;
 typedef int CryptUser;
+typedef int CryptObject;
 
 public value class AlgorithmCapabilities {
 	String^ AlgorithmName;
@@ -885,6 +886,9 @@ namespace OpenCKMS {
 	public ref class Cryptography 
 	{	
 	public:
+		typedef int CryptContext;
+		typedef int CryptUser;
+		typedef int CryptObject;
 
 		/****************************************************************************
 		*																			*
@@ -893,112 +897,112 @@ namespace OpenCKMS {
 		****************************************************************************/
 
 		/* The maximum user key size - 2048 bits */
-		const int MaxKeySize = 256;
+		static const int MaxKeySize = 256;
 
 		/* The maximum IV/cipher block size - 256 bits */
-		const int MaxIvSize = 32;
+		static const int MaxIvSize = 32;
 
 		/* The maximum public-key component size - 4096 bits, and maximum component
 		size for ECCs - 576 bits (to handle the P521 curve) */
-		const int MaxPkcSize = 512;
-		const int MaxPckSizeEcc = 72;
+		static const int MaxPkcSize = 512;
+		static const int MaxPckSizeEcc = 72;
 
 		/* The maximum hash size - 512 bits.  Before 3.4 this was 256 bits, in the
 		3.4 release it was increased to 512 bits to accommodate SHA-3 */
-		const int MaxHashSize = 64;
+		static const int MaxHashSize = 64;
 
 		/* The maximum size of a text string (e.g.key owner name) */
-		const int MaxTextSize = 64;
+		static const int MaxTextSize = 64;
 
 		/* A magic value indicating that the default setting for this parameter
 		should be used.  The parentheses are to catch potential erroneous use
 		in an expression */
-		const int UseDefault = -100;
+		static const int UseDefault = -100;
 
 		/* A magic value for unused parameters */
-		const int Unused = -101;
+		static const int Unused = -101;
 
 		/* Cursor positioning codes for certificate/CRL extensions.  The parentheses
 		are to catch potential erroneous use in an expression */
-		const int CursorFirst = -200;
-		const int CursorPrevious = -201;
-		const int CursorNext = -202;
-		const int CursorLast = -203;
+		static const int CursorFirst = -200;
+		static const int CursorPrevious = -201;
+		static const int CursorNext = -202;
+		static const int CursorLast = -203;
 
 		/* The type of information polling to perform to get random seed
 		information.  These values have to be negative because they're used
 		as magic length values for cryptAddRandom().  The parentheses are to
 		catch potential erroneous use in an expression */
-		const int RandomFastPoll = -300;
-		const int RandomSlowPoll = -301;
+		static const int RandomFastPoll = -300;
+		static const int RandomSlowPoll = -301;
 
 		/* Whether the PKC key is a  or private key */
 
-		const int PrivateKeyType = 0;
-		const int PublicKeyType = 1;
+		static const int PrivateKeyType = 0;
+		static const int PublicKeyType = 1;
 
 		/* Keyset open options */
-		const int KeyOptionNone = 0; // No options
-		const int KeyOptionReadOnly = 1; // Open keyset in read-only mode
-		const int KeyOptionCreate = 2; // Create a new keyset
-		const int KeyOptionLast = 3; // Last possible key option type
+		static const int KeyOptionNone = 0; // No options
+		static const int KeyOptionReadOnly = 1; // Open keyset in read-only mode
+		static const int KeyOptionCreate = 2; // Create a new keyset
+		static const int KeyOptionLast = 3; // Last possible key option type
 
-		const int EccCurveNone = 0; // No ECC curve type                       
-		const int EccCurveP256 = 1; // NIST P256/X9.62 P256v1/SECG p256r1 curve
-		const int EccCurveP384 = 2; // NIST P384, SECG p384r1 curve            
-		const int EccCurveP521 = 3; // NIST P521, SECG p521r1                  
-		const int EccCurveBrainPoolP256 = 4; // Brainpool p256r1                        
-		const int EccCurveBrainPoolP384 = 5; // Brainpool p384r1                        
-		const int EccCurveBrainPoolP512 = 6; // Brainpool p512r1                        
-		const int EccCurveLast = 7; // Last valid ECC curve type               
+		static const int EccCurveNone = 0; // No ECC curve type                       
+		static const int EccCurveP256 = 1; // NIST P256/X9.62 P256v1/SECG p256r1 curve
+		static const int EccCurveP384 = 2; // NIST P384, SECG p384r1 curve            
+		static const int EccCurveP521 = 3; // NIST P521, SECG p521r1                  
+		static const int EccCurveBrainPoolP256 = 4; // Brainpool p256r1                        
+		static const int EccCurveBrainPoolP384 = 5; // Brainpool p384r1                        
+		static const int EccCurveBrainPoolP512 = 6; // Brainpool p512r1                        
+		static const int EccCurveLast = 7; // Last valid ECC curve type               
 
 		/* No error in function call */
-		const int OK = 0; // No error
+		static const int OK = 0; // No error
 
 		/* Error in parameters passed to function.  The parentheses are to catch
 		potential erroneous use in an expression */
-		const int ErrorParam1 = -1; // Bad argument, parameter 1
-		const int ErrorParam2 = -2; // Bad argument, parameter 2
-		const int ErrorParam3 = -3; // Bad argument, parameter 3
-		const int ErrorParam4 = -4; // Bad argument, parameter 4
-		const int ErrorParam5 = -5; // Bad argument, parameter 5
-		const int ErrorParam6 = -6; // Bad argument, parameter 6
-		const int ErrorParam7 = -7; // Bad argument, parameter 7
+		static const int ErrorParam1 = -1; // Bad argument, parameter 1
+		static const int ErrorParam2 = -2; // Bad argument, parameter 2
+		static const int ErrorParam3 = -3; // Bad argument, parameter 3
+		static const int ErrorParam4 = -4; // Bad argument, parameter 4
+		static const int ErrorParam5 = -5; // Bad argument, parameter 5
+		static const int ErrorParam6 = -6; // Bad argument, parameter 6
+		static const int ErrorParam7 = -7; // Bad argument, parameter 7
 
 		/* Errors due to insufficient resources */
-		const int ErrorMemory = -10; // Out of memory
-		const int ErrorNotinited = -11; // Data has not been initialised
-		const int ErrorInited = -12; // Data has already been init'd
-		const int ErrorNosecure = -13; // Opn.not avail.at requested sec.level
-		const int ErrorRandom = -14; // No reliable random data available
-		const int ErrorFailed = -15; // Operation failed
-		const int ErrorInternal = -16; // Internal consistency check failed
+		static const int ErrorMemory = -10; // Out of memory
+		static const int ErrorNotinited = -11; // Data has not been initialised
+		static const int ErrorInited = -12; // Data has already been init'd
+		static const int ErrorNosecure = -13; // Opn.not avail.at requested sec.level
+		static const int ErrorRandom = -14; // No reliable random data available
+		static const int ErrorFailed = -15; // Operation failed
+		static const int ErrorInternal = -16; // Internal consistency check failed
 
 		/* Security violations */
-		const int ErrorNotavail = -20; // This type of opn.not available
-		const int ErrorPermission = -21; // No permiss.to perform this operation
-		const int ErrorWrongkey = -22; // Incorrect key used to decrypt data
-		const int ErrorIncomplete = -23; // Operation incomplete/still in progress
-		const int ErrorComplete = -24; // Operation complete/can't continue
-		const int ErrorTimeout = -25; // Operation timed out before completion
-		const int ErrorInvalid = -26; // Invalid/inconsistent information
-		const int ErrorSignalled = -27; // Resource destroyed by extnl.event
+		static const int ErrorNotavail = -20; // This type of opn.not available
+		static const int ErrorPermission = -21; // No permiss.to perform this operation
+		static const int ErrorWrongkey = -22; // Incorrect key used to decrypt data
+		static const int ErrorIncomplete = -23; // Operation incomplete/still in progress
+		static const int ErrorComplete = -24; // Operation complete/can't continue
+		static const int ErrorTimeout = -25; // Operation timed out before completion
+		static const int ErrorInvalid = -26; // Invalid/inconsistent information
+		static const int ErrorSignaled = -27; // Resource destroyed by extnl.event
 
 		/* High-level function errors */
-		const int ErrorOverflow = -30; // Resources/space exhausted
-		const int ErrorUnderflow = -31; // Not enough data available
-		const int ErrorBadData = -32; // Bad/unrecognised data format
-		const int ErrorSignature = -33; // Signature/integrity check failed
+		static const int ErrorOverflow = -30; // Resources/space exhausted
+		static const int ErrorUnderflow = -31; // Not enough data available
+		static const int ErrorBadData = -32; // Bad/unrecognised data format
+		static const int ErrorSignature = -33; // Signature/integrity check failed
 
 		/* Data access function errors */
-		const int ErrorOpen = -40; // Cannot open object
-		const int ErrorRead = -41; // Cannot read item from object
-		const int ErrorWrite = -42; // Cannot write item to object
-		const int ErrorNotfound = -43; // Requested item not found in object
-		const int ErrorDuplicate = -44; // Item already present in object
+		static const int ErrorOpen = -40; // Cannot open object
+		static const int ErrorRead = -41; // Cannot read item from object
+		static const int ErrorWrite = -42; // Cannot write item to object
+		static const int ErrorNotFound = -43; // Requested item not found in object
+		static const int ErrorDuplicate = -44; // Item already present in object
 
 		/* Data enveloping errors */
-		const int EnvelopeResource = -50; // Need resource to proceed
+		static const int EnvelopeResource = -50; // Need resource to proceed
 
 		/* Constructors */
 		Cryptography();
@@ -1012,6 +1016,10 @@ namespace OpenCKMS {
 		AlgorithmCapabilities ^ QueryCapability(Algorithm algorithm);
 		CryptContext CreateContext(CryptUser user, Algorithm algorithm);
 		void DestroyContext(CryptContext context);
+		void DestroyObject(CryptObject object);
+		void GenerateKey(CryptContext context);
+		array<Byte>^ Encrypt(CryptContext context, String^ data);
+		array<Byte>^ Encrypt(CryptContext context, array<Byte>^ data);
 	};
 
 	
