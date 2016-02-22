@@ -150,7 +150,7 @@ namespace OpenCKMS {
 		Last = 14 // Last possible cert.type 
 	};
 
-	public enum class EnvelopeFormat {
+	public enum class Format {
 		None = 0, // No format type 
 		Auto = 1, // Deenv, auto-determine type 
 		Cryptlib = 2, // cryptlib native format 
@@ -1140,7 +1140,7 @@ namespace OpenCKMS {
 		*																			*
 		****************************************************************************/
 
-		CryptEnvelope CreateEnvelope(CryptUser user, EnvelopeFormat format);
+		CryptEnvelope CreateEnvelope(CryptUser user, Format format);
 
 		void DestroyEnvelope(CryptEnvelope envelope);
 

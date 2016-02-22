@@ -676,55 +676,55 @@ public class crypt
 	
 	/* Flags for the X.509 keyUsage extension */
 	
-	public const int KeyUsageNone                            = 0x000;
-	public const int KeyUsageDigitalSignature                = 0x001;
-	public const int KeyUsageNonrepudiation                  = 0x002;
-	public const int KeyUsageKeyEncipherment                 = 0x004;
-	public const int KeyUsageDataEncipherment                = 0x008;
-	public const int KeyUsageKeyAgreement                    = 0x010;
-	public const int KeyUsageKeyCertSign                     = 0x020;
-	public const int KeyUsageCrlSign                         = 0x040;
-	public const int KeyUsageEncipherOnly                    = 0x080;
-	public const int KeyUsageDecipherOnly                    = 0x100;
-	public const int KeyUsageLast                            = 0x200; // Last possible value
+	public const int KEYUSAGE_NONE                            = 0x000;
+	public const int KEYUSAGE_DIGITALSIGNATURE                = 0x001;
+	public const int KEYUSAGE_NONREPUDIATION                  = 0x002;
+	public const int KEYUSAGE_KEYENCIPHERMENT                 = 0x004;
+	public const int KEYUSAGE_DATAENCIPHERMENT                = 0x008;
+	public const int KEYUSAGE_KEYAGREEMENT                    = 0x010;
+	public const int KEYUSAGE_KEYCERTSIGN                     = 0x020;
+	public const int KEYUSAGE_CRLSIGN                         = 0x040;
+	public const int KEYUSAGE_ENCIPHERONLY                    = 0x080;
+	public const int KEYUSAGE_DECIPHERONLY                    = 0x100;
+	public const int KEYUSAGE_LAST                            = 0x200; // Last possible value
 	
 	/* X.509 cRLReason and cryptlib cRLExtReason codes */
 	
-	public const int CrlReasoonUnspecified          = 0 ,
-	public const int CrlReasoonKeycompromise        = 1 ,
-	public const int CrlReasoonCacompromise         = 2 ,
-	public const int CrlReasoonAffiliationchanged   = 3 ,
-	public const int CrlReasoonSuperseded           = 4 ,
-	public const int CrlReasoonCessationofoperation = 5 ,
-	public const int CrlReasoonCertificatehold      = 6 ,
-	public const int CrlReasoonRemovefromcrl        = 8 ,
-	public const int CrlReasoonPrivilegewithdrawn   = 9 ,
-	public const int CrlReasoonAacompromise         = 10,
-	public const int CrlReasoonLast                 = 11, // End Of Standard Crl Reasons
-	public const int CrlReasoonNevervalid           = 20,
-	public const int CrlextreasonLast              = 21,
+	public const int CRLREASON_UNSPECIFIED          = 0 ;
+	public const int CRLREASON_KEYCOMPROMISE        = 1 ;
+	public const int CRLREASON_CACOMPROMISE         = 2 ;
+	public const int CRLREASON_AFFILIATIONCHANGED   = 3 ;
+	public const int CRLREASON_SUPERSEDED           = 4 ;
+	public const int CRLREASON_CESSATIONOFOPERATION = 5 ;
+	public const int CRLREASON_CERTIFICATEHOLD      = 6 ;
+	public const int CRLREASON_REMOVEFROMCRL        = 8 ;
+	public const int CRLREASON_PRIVILEGEWITHDRAWN   = 9 ;
+	public const int CRLREASON_AACOMPROMISE         = 10;
+	public const int CRLREASON_LAST                 = 11; // End of standard CRL reasons
+	public const int CRLREASON_NEVERVALID           = 20;
+	public const int CRLEXTREASON_LAST              = 21;
 	
 	/* X.509 CRL reason flags.  These identify the same thing as the cRLReason
 	   codes but allow for multiple reasons to be specified.  Note that these
 	   don't follow the X.509 naming since in that scheme the enumerated types
 	   and bitflags have the same names */
 	
-	public const int CrlReasonFlagUnused                     = 0x001,
-	public const int CrlReasonFlagKeycompromise              = 0X002,
-	public const int CrlReasonFlagCacompromise               = 0X004,
-	public const int CrlReasonFlagAffiliationchanged         = 0X008,
-	public const int CrlReasonFlagSuperseded                 = 0X010,
-	public const int CrlReasonFlagCessationofoperation       = 0X020,
-	public const int CrlReasonFlagCertificatehold            = 0X040,
-	public const int CrlReasonFlagLast                       = 0X080, // Last Poss.Value
+	public const int CRLREASONFLAG_UNUSED                     = 0x001;
+	public const int CRLREASONFLAG_KEYCOMPROMISE              = 0x002;
+	public const int CRLREASONFLAG_CACOMPROMISE               = 0x004;
+	public const int CRLREASONFLAG_AFFILIATIONCHANGED         = 0x008;
+	public const int CRLREASONFLAG_SUPERSEDED                 = 0x010;
+	public const int CRLREASONFLAG_CESSATIONOFOPERATION       = 0x020;
+	public const int CRLREASONFLAG_CERTIFICATEHOLD            = 0x040;
+	public const int CRLREASONFLAG_LAST                       = 0x080; // Last poss.value
 	
 	/* X.509 CRL holdInstruction codes */
 	
-	public const int HoldInstructionNone        = 0;
-	Public Const Int HoldInstructionCallissuer  = 1;
-	Public Const Int HoldInstructionReject      = 2;
-	Public Const Int HoldInstructionPickupToken = 3;
-	Public Const Int HoldInstructionLast        = 4;
+	public const int HOLDINSTRUCTION_NONE        = 0;
+	public const int HOLDINSTRUCTION_CALLISSUER  = 1;
+	public const int HOLDINSTRUCTION_REJECT      = 2;
+	public const int HOLDINSTRUCTION_PICKUPTOKEN = 3;
+	public const int HOLDINSTRUCTION_LAST        = 4;
 	
 	/* Certificate checking compliance levels */
 	

@@ -40,7 +40,7 @@ AlgorithmCapabilities ^ OpenCKMS::Cryptography::QueryCapability(Algorithm algori
 CryptContext OpenCKMS::Cryptography::CreateContext(CryptUser user, Algorithm algorithm)
 {
 	int context;
-	int result = cryptCreateContext(&context, user, (CRYPT_ALGO_TYPE)algorithm);
+	int result = cryptCreateContext(&context, Unused, (CRYPT_ALGO_TYPE)algorithm);
 	if(result) {
 		switch(result) {
 			case -2:
@@ -254,7 +254,7 @@ CryptCertificate OpenCKMS::Cryptography::CertificationAuthorityManagement(Certif
 	return CryptCertificate();
 }
 
-CryptEnvelope OpenCKMS::Cryptography::CreateEnvelope(CryptUser user, EnvelopeFormat format)
+CryptEnvelope OpenCKMS::Cryptography::CreateEnvelope(CryptUser user, Format format)
 {
 	return CryptEnvelope();
 }

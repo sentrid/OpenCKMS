@@ -10,10 +10,10 @@ namespace CryptographyTests
         [TestMethod]
         public void TestMethod1()
         {
-            var cc = new Cryptography().CreateContext(Cryptography.Unused, Algorithm.Dh);
-            var d = new Cryptography();
-            
+            var crypto = new Cryptography();
+            var ctx = crypto.CreateContext(Cryptography.Unused, Algorithm.Rsa);
 
+            crypto.DestroyContext(ctx);
         }
     }
 }
