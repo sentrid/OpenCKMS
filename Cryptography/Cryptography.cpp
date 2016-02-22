@@ -198,3 +198,110 @@ void OpenCKMS::Cryptography::DestroyCertificate(CryptCertificate certificate)
 	throw gcnew System::NotImplementedException();
 }
 
+CertificateExtension OpenCKMS::Cryptography::GetCertificateExtension(CryptCertificate certificate, String ^ oid, int extensionMaximumLength)
+{
+	return CertificateExtension();
+}
+
+void OpenCKMS::Cryptography::AddCertificateExtension(CryptCertificate certificate, String ^ oid, bool isCritical, String ^ extension, int extensionMaximumLength)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+void OpenCKMS::Cryptography::DeleteCertificateExtension(CryptCertificate certificate, String ^ oid)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+void OpenCKMS::Cryptography::SignCertificate(CryptCertificate certificate, CryptContext certificateContext)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+void OpenCKMS::Cryptography::CheckCertificateSignature(CryptCertificate certificate, CryptHandle signatureCheckKey)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+CryptCertificate OpenCKMS::Cryptography::ImportCertificate(array<Byte>^ certificateObject, int certificateObjectLength, CryptUser user)
+{
+	return CryptCertificate();
+}
+
+array<Byte>^ OpenCKMS::Cryptography::ExportCertificate(int certificateObjectMaxLength, CertificateType certificateType, CryptCertificate certificate)
+{
+	throw gcnew System::NotImplementedException();
+	// TODO: insert return statement here
+}
+
+void OpenCKMS::Cryptography::AddCertificationAuthorityItem(CryptKeyset keyset, CryptCertificate certificate)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+CryptCertificate OpenCKMS::Cryptography::GetCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String ^ keyId)
+{
+	return CryptCertificate();
+}
+
+void OpenCKMS::Cryptography::DeleteCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String ^ keyId)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+CryptCertificate OpenCKMS::Cryptography::CertificationAuthorityManagement(CertificateActionType action, CryptKeyset keyset, CryptContext caKey, CryptCertificate certificateRequest)
+{
+	return CryptCertificate();
+}
+
+CryptEnvelope OpenCKMS::Cryptography::CreateEnvelope(CryptUser user, EnvelopeFormat format)
+{
+	return CryptEnvelope();
+}
+
+void OpenCKMS::Cryptography::DestroyEnvelope(CryptEnvelope envelope)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+void OpenCKMS::Cryptography::PushData(CryptHandle envelope, array<Byte>^ data)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+array<Byte>^ OpenCKMS::Cryptography::PopData(CryptEnvelope envelope, int length)
+{
+	throw gcnew System::NotImplementedException();
+	// TODO: insert return statement here
+}
+
+CryptDevice OpenCKMS::Cryptography::OpenDevice(CryptUser user, CryptDevice device, String ^ name)
+{
+	return CryptDevice();
+}
+
+void OpenCKMS::Cryptography::CloseDevice(CryptDevice device)
+{
+	throw gcnew System::NotImplementedException();
+}
+
+QueryInfo OpenCKMS::Cryptography::QueryDeviceCapabilities(CryptDevice device, Algorithm algorithm)
+{
+	return QueryInfo();
+}
+
+CryptContext OpenCKMS::Cryptography::CreateDeviceContext(CryptDevice device, Algorithm algorithm)
+{
+	return CryptContext();
+}
+
+CryptUser OpenCKMS::Cryptography::Login(String ^ user, String ^ password)
+{
+	return CryptUser();
+}
+
+void OpenCKMS::Cryptography::Logout(CryptUser user)
+{
+	throw gcnew System::NotImplementedException();
+}
+

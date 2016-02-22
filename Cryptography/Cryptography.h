@@ -22,6 +22,8 @@ namespace OpenCKMS {
 	using SessionContext = int;
 	using CryptCertificate = int;
 	using CryptKeyset = int;
+	using CryptEnvelope = int;
+	using CryptDevice = int;
 
 	public value class AlgorithmCapabilities {
 		String^ AlgorithmName;
@@ -148,7 +150,7 @@ namespace OpenCKMS {
 		Last = 14 // Last possible cert.type 
 	};
 
-	public enum class Format {
+	public enum class EnvelopeFormat {
 		None = 0, // No format type 
 		Auto = 1, // Deenv, auto-determine type 
 		Cryptlib = 2, // cryptlib native format 
@@ -1110,7 +1112,67 @@ namespace OpenCKMS {
 
 		void DestroyCertificate(CryptCertificate certificate);
 
+		CertificateExtension GetCertificateExtension(CryptCertificate certificate, String^ oid, int extensionMaximumLength);
 
+		void AddCertificateExtension(CryptCertificate certificate, String^ oid, bool isCritical, String^ extension, int extensionMaximumLength);
+
+		void DeleteCertificateExtension(CryptCertificate certificate, String^ oid);
+
+		void SignCertificate(CryptCertificate certificate, CryptContext certificateContext);
+
+		void CheckCertificateSignature(CryptCertificate certificate, CryptHandle signatureCheckKey);
+
+		CryptCertificate ImportCertificate(array<Byte>^ certificateObject, int certificateObjectLength, CryptUser user);
+
+		array<Byte>^ ExportCertificate(int certificateObjectMaxLength, CertificateType certificateType, CryptCertificate certificate);
+
+		void AddCertificationAuthorityItem(CryptKeyset keyset, CryptCertificate certificate);
+
+		CryptCertificate GetCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
+
+		void DeleteCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
+		
+		CryptCertificate CertificationAuthorityManagement(CertificateActionType action, CryptKeyset keyset, CryptContext caKey, CryptCertificate certificateRequest);
+
+		/****************************************************************************
+		*																			*
+		*							Envelope and Session Functions					*
+		*																			*
+		****************************************************************************/
+
+		CryptEnvelope CreateEnvelope(CryptUser user, EnvelopeFormat format);
+
+		void DestroyEnvelope(CryptEnvelope envelope);
+
+		void PushData(CryptHandle envelope, array<Byte>^ data);
+
+		array<Byte>^ PopData(CryptEnvelope envelope, int length);
+
+		
+		/****************************************************************************
+		*																			*
+		*								Device Functions							*
+		*																			*
+		****************************************************************************/
+
+		CryptDevice OpenDevice(CryptUser user, CryptDevice device, String^ name);
+
+		void CloseDevice(CryptDevice device);
+
+		QueryInfo QueryDeviceCapabilities(CryptDevice device, Algorithm algorithm);
+
+		CryptContext CreateDeviceContext(CryptDevice device, Algorithm algorithm);
+
+
+		/****************************************************************************
+		*																			*
+		*							User Management Functions						*
+		*																			*
+		****************************************************************************/
+
+		CryptUser Login(String^ user, String^ password);
+
+		void Logout(CryptUser user);
 	};
 
 }
