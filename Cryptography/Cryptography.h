@@ -54,6 +54,12 @@ namespace OpenCKMS {
 
 	};
 
+	public value class CertificateExtension {
+		bool critical;
+		String^ oid;
+		int length;
+	};
+
 	public enum class Algorithm {
 		None = 0, // No encryption
 		Des = 1, // DES
@@ -888,6 +894,14 @@ namespace OpenCKMS {
 		SuiteB256 = 0x200 // vanish in future releases)  
 	};
 
+	public enum KeysetOption {
+		None,
+		ReadOnly,
+		Create,
+		ExclusiveAccess,
+		Last,
+		LastExternal = Create + 1
+	};
 
 	[Serializable]
 	public ref class CryptographicException : public Exception
@@ -988,15 +1002,15 @@ namespace OpenCKMS {
 		static const int ErrorMemory = -10; // Out of memory
 		static const int ErrorNotinited = -11; // Data has not been initialised
 		static const int ErrorInited = -12; // Data has already been init'd
-		static const int ErrorNosecure = -13; // Opn.not avail.at requested sec.level
+		static const int ErrorNoSecure = -13; // Opn.not avail.at requested sec.level
 		static const int ErrorRandom = -14; // No reliable random data available
 		static const int ErrorFailed = -15; // Operation failed
 		static const int ErrorInternal = -16; // Internal consistency check failed
 
 		/* Security violations */
-		static const int ErrorNotavail = -20; // This type of opn.not available
+		static const int ErrorNotAvail = -20; // This type of opn.not available
 		static const int ErrorPermission = -21; // No permiss.to perform this operation
-		static const int ErrorWrongkey = -22; // Incorrect key used to decrypt data
+		static const int ErrorWrongKey = -22; // Incorrect key used to decrypt data
 		static const int ErrorIncomplete = -23; // Operation incomplete/still in progress
 		static const int ErrorComplete = -24; // Operation complete/can't continue
 		static const int ErrorTimeout = -25; // Operation timed out before completion
@@ -1072,7 +1086,30 @@ namespace OpenCKMS {
 		*																			*
 		****************************************************************************/
 
-		//CryptKeyset KeysetOpen(KeysetType keysetType, String^ name, );
+		CryptKeyset KeysetOpen(KeysetType keysetType, String^ name, KeysetOption keysetOptions );
+		
+		void KeysetClose(CryptKeyset keyset);
+
+		CryptContext GetPublicKey(CryptKeyset keyset, KeyIdType keyIdType, String^ KeyId);
+
+		CryptContext GetPrivateKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId, String^ password);
+
+		void AddPublicKey(CryptKeyset keyset, CryptCertificate certificate);
+
+		void AddPrivateKey(CryptKeyset keyset, CryptHandle key, String^ password);
+
+		void DeleteKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId);
+
+		/****************************************************************************
+		*																			*
+		*								Certificate Functions						*
+		*																			*
+		****************************************************************************/
+
+		CryptCertificate CreateCertificate(CryptUser user, CertificateType certificateType);
+
+		void DestroyCertificate(CryptCertificate certificate);
+
 
 	};
 
