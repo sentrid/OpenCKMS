@@ -1048,13 +1048,12 @@ namespace OpenCKMS {
 		CryptContext CreateContext(CryptUser user, Algorithm algorithm);
 		void DestroyContext(CryptContext context);
 		void DestroyObject(CryptObject object);
-		void GenerateKey(CryptContext context);
+		void GenerateKey(CryptContext context, String^ label);
 		array<Byte>^ Encrypt(CryptContext context, String^ data);
 		array<Byte>^ Encrypt(CryptContext context, array<Byte>^ data);
 		array<Byte>^ Decrypt(CryptContext context, array<Byte>^ data, int dataLength);
 		void SetAttribute(CryptHandle handle, AttributeType attributeType, int value);
-		void SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value,
-			int valueLength);
+		void SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value);
 		int GetAttribute(CryptHandle handle, AttributeType attributeType);
 		String^ GetAttributeString(CryptHandle handle, AttributeType attributeType);
 		void DeleteAttribute(CryptHandle handle, AttributeType attributeType);

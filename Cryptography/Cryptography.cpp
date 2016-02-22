@@ -5,6 +5,7 @@
 #include "Cryptography.h"
 #include <cryptlib.h>
 
+using namespace System::Runtime::InteropServices;
 using namespace OpenCKMS;
 
 void EvaluateMethodResult(int result)
@@ -18,7 +19,7 @@ void EvaluateMethodResult(int result)
 		String^ errorDescription = gcnew String(errorString);
 		throw gcnew CryptographicException(errorDescription);
 		//delete errorString;
-	}
+}
 }
 
 OpenCKMS::Cryptography::Cryptography()
@@ -44,15 +45,15 @@ CryptContext OpenCKMS::Cryptography::CreateContext(CryptUser user, Algorithm alg
 	if(result) {
 		switch(result) {
 			case -2:
-				break;
+			break;
 			case -3:
-				break;
+			break;
 			default:
-				String^ errorMessage = gcnew String("An error occurred in the CreateContext method.  The returned error code is " + result);
-				throw gcnew CryptographicException(errorMessage);
-		}
-	}
-	return context;
+			String^ errorMessage = gcnew String("An error occurred in the CreateContext method.  The returned error code is " + result);
+			throw gcnew CryptographicException(errorMessage);
+}
+}
+return context;
 }
 
 void OpenCKMS::Cryptography::DestroyContext(CryptContext context)
@@ -62,12 +63,13 @@ void OpenCKMS::Cryptography::DestroyContext(CryptContext context)
 
 void Cryptography::DestroyObject(CryptObject object)
 {
-	
+
 }
 
-void OpenCKMS::Cryptography::GenerateKey(CryptContext context)
+void OpenCKMS::Cryptography::GenerateKey(CryptContext context, String^ label)
 {
-	
+	SetAttribute(context, AttributeType::CtxInfoLabel, label);
+	int result = cryptGenerateKey(context);
 }
 
 array<System::Byte>^ OpenCKMS::Cryptography::Encrypt(CryptContext context, String^ data)
@@ -90,12 +92,14 @@ array<System::Byte>^ OpenCKMS::Cryptography::Decrypt(CryptContext context, array
 
 void OpenCKMS::Cryptography::SetAttribute(CryptHandle handle, AttributeType attributeType, int value)
 {
-	
+
 }
 
-void OpenCKMS::Cryptography::SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value, int valueLength)
+void OpenCKMS::Cryptography::SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value)
 {
-	
+	IntPtr ptrToNativeString = Marshal::StringToHGlobalAnsi(value);
+	cryptSetAttributeString(handle, static_cast<CRYPT_ATTRIBUTE_TYPE>(attributeType), static_cast<char*>(ptrToNativeString.ToPointer()), value->Length);
+	Marshal::FreeHGlobal(ptrToNativeString);
 }
 
 int Cryptography::GetAttribute(CryptHandle handle, AttributeType attributeType)
@@ -110,7 +114,7 @@ String^ OpenCKMS::Cryptography::GetAttributeString(CryptHandle handle, Attribute
 
 void OpenCKMS::Cryptography::DeleteAttribute(CryptHandle handle, AttributeType attributeType)
 {
-	
+
 }
 
 /****************************************************************************
@@ -123,7 +127,20 @@ void OpenCKMS::Cryptography::DeleteAttribute(CryptHandle handle, AttributeType a
 
 array<Byte>^ Cryptography::ExportKey(CryptHandle exportKey, CryptContext sessionKeyContext)
 {
-	return gcnew array<Byte>(0);
+	int encryptedKeyLength;
+	CryptContext context;
+
+	int result = cryptExportKey(NULL, 0, &encryptedKeyLength, exportKey, sessionKeyContext);
+	if(result != 0) {
+		// Error goes here
+		throw gcnew System::Exception("Bad stuff.");
+	}
+	char* buffer = new char[encryptedKeyLength];
+	result = cryptExportKey(buffer, 10240, &encryptedKeyLength, exportKey, sessionKeyContext);
+	array<Byte>^ key = gcnew array<Byte>(encryptedKeyLength);
+	Marshal::Copy((IntPtr)buffer, key, 0, encryptedKeyLength);
+	delete buffer;
+	return key;
 }
 
 array<Byte>^ OpenCKMS::Cryptography::ExportKey(CryptHandle exportKey, int maximumKeyLength, int keyLength,
@@ -304,4 +321,5 @@ void OpenCKMS::Cryptography::Logout(CryptUser user)
 {
 	throw gcnew System::NotImplementedException();
 }
+
 
