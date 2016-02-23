@@ -18,8 +18,13 @@ void EvaluateMethodResult(int result)
 		cryptGetAttributeString(result, CRYPT_ATTRIBUTE_ERRORMESSAGE, errorString, &errorStringLength);
 		String^ errorDescription = gcnew String(errorString);
 		throw gcnew CryptographicException(errorDescription);
-		//delete errorString;
+		delete errorString;
+	}
 }
+
+Cryptography::Cryptography(const Cryptography%) {
+	Resources::ResourceManager^ rm = gcnew Resources::ResourceManager(L"OpenCKMS.CryptographyExceptionMessages", this->GetType()->Assembly);
+	throw gcnew System::InvalidOperationException(rm->GetString(L"NoCopyConstructor"));
 }
 
 OpenCKMS::Cryptography::Cryptography()
@@ -51,9 +56,9 @@ CryptContext OpenCKMS::Cryptography::CreateContext(CryptUser user, Algorithm alg
 			default:
 			String^ errorMessage = gcnew String("An error occurred in the CreateContext method.  The returned error code is " + result);
 			throw gcnew CryptographicException(errorMessage);
-}
-}
-return context;
+		}
+	}
+	return context;
 }
 
 void OpenCKMS::Cryptography::DestroyContext(CryptContext context)

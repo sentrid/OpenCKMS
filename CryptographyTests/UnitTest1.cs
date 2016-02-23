@@ -13,7 +13,10 @@ namespace CryptographyTests
             var crypto = new Cryptography();
             var ctx = crypto.CreateContext(Cryptography.Unused, Algorithm.Rsa);
             crypto.GenerateKey(ctx, "MyNewKey");
-            var theKey = crypto.ExportKey(ctx, ctx);
+
+            var exchangeCtx = crypto.CreateContext(Cryptography.Unused, Algorithm.TripleDes);
+            crypto.GenerateKey(exchangeCtx, "ExchangeKeyPassword");
+            var theKey = crypto.ExportKey(ctx, exchangeCtx);
             crypto.DestroyContext(ctx);
         }
     }
