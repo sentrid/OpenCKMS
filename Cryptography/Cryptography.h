@@ -57,9 +57,16 @@ namespace OpenCKMS {
 	};
 
 	public value class CertificateExtension {
-		bool critical;
-		String^ oid;
-		int length;
+		bool IsCritical;
+		String^ Oid;
+		int Length;
+	};
+
+	public ref class ExtendedErrorInformation {
+		int ErrorCode;
+		int ErrorType;
+		int ErrorLocus;
+		String^ ErrorDescription;
 	};
 
 	public enum class Algorithm {
@@ -910,11 +917,11 @@ namespace OpenCKMS {
 	{
 		public:
 		CryptographicException() : Exception(){}
-	CryptographicException(String^ message) : Exception(message) {}
-	CryptographicException(String^ message, Exception^ inner) : Exception(message, inner) {}
+		CryptographicException(String^ message) : Exception(message) {}
+		CryptographicException(String^ message, Exception^ inner) : Exception(message, inner) {}
 
-	protected:
-	CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context){}
+		protected:
+		CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context){}
 	};
 
 	public ref class Cryptography
@@ -1073,8 +1080,7 @@ namespace OpenCKMS {
 
 	array<Byte>^ ExportKey(CryptHandle exportKey, CryptContext sessionKeyContext);
 	array<Byte>^ ExportKey(CryptHandle exportKey, int maximumKeyLength, int keyLength,
-		Format keyFormat, CryptHandle exportKeyHandle,
-		CryptContext sessionKeyContext);
+		Format keyFormat, CryptHandle exportKeyHandle, CryptContext sessionKeyContext);
 
 	CryptContext ImportKey(array<Byte>^ encryptedKey, int encryptedKeyLength, CryptContext importKeyContext,
 		SessionContext sessionKeyContext);
@@ -1092,7 +1098,7 @@ namespace OpenCKMS {
 	*																			*
 	****************************************************************************/
 
-	CryptKeyset KeysetOpen(KeysetType keysetType, String^ name, KeysetOption keysetOptions );
+	CryptKeyset KeysetOpen(KeysetType^ keysetType, String^ name, KeysetOption keysetOptions );
 
 	void KeysetClose(CryptKeyset keyset);
 
