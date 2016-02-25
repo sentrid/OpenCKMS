@@ -25,7 +25,10 @@ namespace OpenCKMS {
 	using CryptEnvelope = int;
 	using CryptDevice = int;
 
+#pragma region Data Structures
+
 	public value class AlgorithmCapabilities {
+	public:
 		String^ AlgorithmName;
 		int BlockSize;
 		int MinKeySize;
@@ -34,6 +37,7 @@ namespace OpenCKMS {
 };
 
 	public value class ObjectInformation {
+	public:
 		int Type;
 		int Algorithm;
 		int Mode;
@@ -43,6 +47,7 @@ namespace OpenCKMS {
 	};
 
 	public value class QueryInfo {
+	public:
 		String^ AlgorithmName;
 		int BlockSize;
 		int MinimumKeySize;
@@ -51,23 +56,30 @@ namespace OpenCKMS {
 	};
 
 	public value class RsaInfo {
+	public:
 		bool IsPublicKey;
 		array<Char>^ Modulus;
 
 	};
 
 	public value class CertificateExtension {
+	public:
 		bool IsCritical;
 		String^ Oid;
 		int Length;
 	};
 
 	public ref class ExtendedErrorInformation {
+	public:
 		int ErrorCode;
 		int ErrorType;
 		int ErrorLocus;
 		String^ ErrorDescription;
 	};
+
+#pragma endregion
+
+#pragma region Enumerations
 
 	public enum class Algorithm {
 		None = 0, // No encryption
@@ -912,17 +924,31 @@ namespace OpenCKMS {
 		LastExternal = Create + 1
 	};
 
+#pragma endregion
+
+#pragma region Exceptions
+	
 	[Serializable]
 	public ref class CryptographicException : public Exception
 	{
-		public:
-		CryptographicException() : Exception(){}
+	public:
+		CryptographicException() : Exception() {}
 		CryptographicException(String^ message) : Exception(message) {}
 		CryptographicException(String^ message, Exception^ inner) : Exception(message, inner) {}
 
-		protected:
-		CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context){}
+		void AddExtendedErrorInformation(ExtendedErrorInformation^ errorInfo)
+		{
+			Data->Add("Error Code", errorInfo->ErrorCode);
+			Data->Add("Error Type", errorInfo->ErrorType);
+			Data->Add("Error Locus", errorInfo->ErrorLocus);
+			Data->Add("Error Description", errorInfo->ErrorDescription);
+		}
+
+	protected:
+		CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context) {}
 	};
+
+#pragma endregion
 
 	public ref class Cryptography
 	{
@@ -932,10 +958,6 @@ namespace OpenCKMS {
 	~Cryptography();
 	Cryptography(const Cryptography%);
 		
-	//static Cryptography m_instance;
-
-	
-	/*static property Cryptography^ Instance {Cryptography^ get() { return %m_instance; }}*/
 
 	/****************************************************************************
 	*																			*
@@ -1061,8 +1083,8 @@ namespace OpenCKMS {
 	void DestroyContext(CryptContext context);
 	void DestroyObject(CryptObject object);
 	void GenerateKey(CryptContext context, String^ label);
-	array<Byte>^ Encrypt(CryptContext context, String^ data);
-	array<Byte>^ Encrypt(CryptContext context, array<Byte>^ data);
+	array<Byte>^ Encrypt(String^ keyId, String^ data);
+	array<Byte>^ Encrypt(String^ keyId, array<Byte>^ data);
 	array<Byte>^ Decrypt(CryptContext context, array<Byte>^ data, int dataLength);
 	void SetAttribute(CryptHandle handle, AttributeType attributeType, int value);
 	void SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value);

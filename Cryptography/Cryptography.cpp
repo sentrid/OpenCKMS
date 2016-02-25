@@ -38,7 +38,33 @@ void EvaluateMethodResult(int result)
 	}
 }
 
+void ThrowCryptographicException(int object, int status)
+{
+	if(cryptStatusError(status))
+	{
+		int locus, type, messageLength;
+		char* buffer = NULL;
 
+		cryptGetAttribute(object, CRYPT_ATTRIBUTE_ERRORLOCUS, &locus);
+		cryptGetAttribute(object, CRYPT_ATTRIBUTE_ERRORTYPE, &type);
+		cryptGetAttributeString(object, CRYPT_ATTRIBUTE_ERRORMESSAGE, NULL, &messageLength);
+		
+		buffer = new char[messageLength];
+		cryptGetAttributeString(object, CRYPT_ATTRIBUTE_ERRORMESSAGE, buffer, &messageLength);
+		String^ errorMessage = gcnew String(buffer);
+		delete buffer;
+
+		ExtendedErrorInformation^ errorInfo = gcnew ExtendedErrorInformation();
+		errorInfo->ErrorCode = status;
+		errorInfo->ErrorType = type;
+		errorInfo->ErrorLocus = locus;
+		errorInfo->ErrorDescription = errorMessage;
+
+		auto exception = gcnew CryptographicException(errorMessage);
+		exception->AddExtendedErrorInformation(errorInfo);
+		throw exception;
+	}
+}
 
 /// <summary>
 /// Initializes a new instance of the <see cref="Cryptography" /> class.
@@ -54,7 +80,7 @@ Cryptography::Cryptography(const Cryptography%) {
 /// </summary>
 OpenCKMS::Cryptography::Cryptography()
 {
-	EvaluateMethodResult(cryptInit());
+	cryptInit();
 }
 
 /// <summary>
@@ -88,18 +114,8 @@ CryptContext OpenCKMS::Cryptography::CreateContext(CryptUser user, Algorithm alg
 {
 	CryptContext context;
 	int result = cryptCreateContext(&context, Unused, (CRYPT_ALGO_TYPE)algorithm);
-	if(result) {
-		switch(result) {
-			case -2:
-				throw gcnew Exception("Error with user passed into method.");
-			break;
-			case -3:
-				throw gcnew Exception("Error with algorithm passed into method.");
-			break;
-			default:
-			String^ errorMessage = gcnew String("An error occurred in the CreateContext method.  The returned error code is " + result);
-			throw gcnew CryptographicException(errorMessage);
-		}
+	if(!cryptStatusOK(result)) {
+		ThrowCryptographicException(context, result);
 	}
 	return context;
 }
@@ -110,7 +126,11 @@ CryptContext OpenCKMS::Cryptography::CreateContext(CryptUser user, Algorithm alg
 /// <param name="context">The context.</param>
 void OpenCKMS::Cryptography::DestroyContext(CryptContext context)
 {
-	EvaluateMethodResult(cryptDestroyContext(context));
+	int result = cryptDestroyContext(context);
+	if(!cryptStatusOK(result))
+	{
+		ThrowCryptographicException(context, result);
+	}
 }
 
 /// <summary>
@@ -119,7 +139,11 @@ void OpenCKMS::Cryptography::DestroyContext(CryptContext context)
 /// <param name="object">The object.</param>
 void Cryptography::DestroyObject(CryptObject object)
 {
-	EvaluateMethodResult(cryptDestroyObject(object));
+	int result = cryptDestroyObject(object);
+	if (!cryptStatusOK(result))
+	{
+		ThrowCryptographicException(object, result);
+	}
 }
 
 /// <summary>
@@ -131,30 +155,10 @@ void OpenCKMS::Cryptography::GenerateKey(CryptContext context, String^ label)
 {
 	SetAttribute(context, AttributeType::CtxInfoLabel, label);
 	int result = cryptGenerateKey(context);
-}
-
-/// <summary>
-/// Encrypts the specified context.
-/// </summary>
-/// <param name="context">The context.</param>
-/// <param name="data">The data.</param>
-/// <returns>array&lt;System.Byte&gt;^.</returns>
-array<System::Byte>^ OpenCKMS::Cryptography::Encrypt(CryptContext context, String^ data)
-{
-	IntPtr ptrToNativeString = Marshal::StringToHGlobalAnsi(data);
-	try
-	{		
-		int result = cryptEncrypt(context, (void*)static_cast<char*>(ptrToNativeString.ToPointer()), data->Length);
-		auto encryptedData = gcnew array<Byte>(10);
-		return encryptedData;
-	}
-	catch(...)
+	if (!cryptStatusOK(result))
 	{
-		throw gcnew Exception("Encryption failure.");
+		ThrowCryptographicException(context, result);
 	}
-	finally {
-		Marshal::FreeHGlobal(ptrToNativeString);
-	}	
 }
 
 /// <summary>
@@ -165,8 +169,52 @@ array<System::Byte>^ OpenCKMS::Cryptography::Encrypt(CryptContext context, Strin
 /// <returns>array&lt;System.Byte&gt;^.</returns>
 array<System::Byte>^ OpenCKMS::Cryptography::Encrypt(CryptContext context, array<Byte>^ data)
 {
+	pin_ptr<Byte> pinnedData = &data[0];
+	unsigned char *charData = pinnedData;
+		
+	int result = cryptEncrypt(context, (void*)charData, data->Length);
+	if (!cryptStatusOK(result))
+	{
+		ThrowCryptographicException(context, result);
+	}
 	auto encryptedData = gcnew array<Byte>(10);
 	return encryptedData;
+	
+}
+
+array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String ^ data)
+{
+	CryptEnvelope encryptionEnvelope;
+	CryptKeyset keyset;
+	int bytesCopied, status;
+	IntPtr ptrToNativeString = Marshal::StringToHGlobalAnsi(data);
+	IntPtr keyName = Marshal::StringToHGlobalAnsi(keyId);
+	
+	status = cryptCreateEnvelope(&encryptionEnvelope, Unused, CRYPT_FORMAT_CRYPTLIB);
+	if(cryptStatusError(status))
+	{
+		ThrowCryptographicException(encryptionEnvelope, status);
+	}
+	
+	status = cryptSetAttribute(encryptionEnvelope, CRYPT_ENVINFO_DATASIZE, data->Length);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyEnvelope(encryptionEnvelope);
+		ThrowCryptographicException(encryptionEnvelope, status);
+	}
+
+	status = cryptKeysetOpen(&keyset, Unused, CRYPT_KEYSET_ODBC, static_cast<char*>(keyName.ToPointer()), CRYPT_KEYOPT_READONLY);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyEnvelope(encryptionEnvelope);
+		ThrowCryptographicException(keyset, status);
+	}
+}
+
+array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, array<Byte>^ data)
+{
+	throw gcnew System::NotImplementedException();
+	// TODO: insert return statement here
 }
 
 /// <summary>
