@@ -16,7 +16,7 @@
 #include "Cryptography.h"
 #include <cryptlib.h>
 
-
+using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace OpenCKMS;
 
@@ -161,41 +161,28 @@ void OpenCKMS::Cryptography::GenerateKey(CryptContext context, String^ label)
 	}
 }
 
-/// <summary>
-/// Encrypts the specified context.
-/// </summary>
-/// <param name="context">The context.</param>
-/// <param name="data">The data.</param>
-/// <returns>array&lt;System.Byte&gt;^.</returns>
-array<System::Byte>^ OpenCKMS::Cryptography::Encrypt(CryptContext context, array<Byte>^ data)
+array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String^ recipient, String ^ data)
 {
-	pin_ptr<Byte> pinnedData = &data[0];
-	unsigned char *charData = pinnedData;
-		
-	int result = cryptEncrypt(context, (void*)charData, data->Length);
-	if (!cryptStatusOK(result))
-	{
-		ThrowCryptographicException(context, result);
-	}
-	auto encryptedData = gcnew array<Byte>(10);
-	return encryptedData;
-	
-}
-
-array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String ^ data)
-{
-	CryptEnvelope encryptionEnvelope;
+	int status;
 	CryptKeyset keyset;
-	int bytesCopied, status;
-	IntPtr ptrToNativeString = Marshal::StringToHGlobalAnsi(data);
+	int bytesCopied = 0, bytesProcessed = 0;
+	int encryptedDataLength = 0;
+	CryptEnvelope encryptionEnvelope;
+	char *encryptedData;
+	const int maxEncryptionBufferSize = 10240;
+
+	IntPtr plainTextData = Marshal::StringToHGlobalAnsi(data);
 	IntPtr keyName = Marshal::StringToHGlobalAnsi(keyId);
-	
+	IntPtr recipientName = Marshal::StringToHGlobalAnsi(recipient);
+
+	List<Byte>^ encryptedDataArray = gcnew List<Byte>();
+
 	status = cryptCreateEnvelope(&encryptionEnvelope, Unused, CRYPT_FORMAT_CRYPTLIB);
-	if(cryptStatusError(status))
+	if (cryptStatusError(status))
 	{
 		ThrowCryptographicException(encryptionEnvelope, status);
 	}
-	
+
 	status = cryptSetAttribute(encryptionEnvelope, CRYPT_ENVINFO_DATASIZE, data->Length);
 	if (cryptStatusError(status))
 	{
@@ -209,9 +196,53 @@ array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String ^ data)
 		cryptDestroyEnvelope(encryptionEnvelope);
 		ThrowCryptographicException(keyset, status);
 	}
+
+	status = cryptSetAttribute(encryptionEnvelope, CRYPT_ENVINFO_KEYSET_ENCRYPT, keyset);
+	cryptKeysetClose(keyset);
+	if (cryptStatusError(status))
+	{
+		ThrowCryptographicException(encryptionEnvelope, status);
+	}
+
+	status = cryptSetAttributeString(encryptionEnvelope, CRYPT_ENVINFO_RECIPIENT, static_cast<char*>(recipientName.ToPointer()), recipient->Length);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyEnvelope(encryptionEnvelope);
+		ThrowCryptographicException(encryptionEnvelope, status);
+	}
+
+	while (bytesProcessed < data->Length)
+	{
+		status = cryptPushData(encryptionEnvelope, static_cast<char*>(plainTextData.ToPointer()), data->Length, &bytesCopied);
+		if (cryptStatusError(status))
+		{
+			cryptDestroyEnvelope(encryptionEnvelope);
+			ThrowCryptographicException(encryptionEnvelope, status);
+		}
+		bytesProcessed += bytesCopied;
+	}	
+
+	status = cryptFlushData(encryptionEnvelope);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyEnvelope(encryptionEnvelope);
+		ThrowCryptographicException(encryptionEnvelope, status);
+	}
+
+	do {
+		status = cryptPopData(encryptionEnvelope, encryptedData, maxEncryptionBufferSize, &encryptedDataLength);
+		if (cryptStatusError(status))
+		{
+			cryptDestroyEnvelope(encryptionEnvelope);
+			ThrowCryptographicException(encryptionEnvelope, status);
+		}
+		//encryptedDataArray->Add()
+	} while (encryptedDataLength == maxEncryptionBufferSize);
+
+	cryptDestroyEnvelope(encryptionEnvelope);
 }
 
-array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, array<Byte>^ data)
+array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String^ recipient, array<Byte>^ data)
 {
 	throw gcnew System::NotImplementedException();
 	// TODO: insert return statement here

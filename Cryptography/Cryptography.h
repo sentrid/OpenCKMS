@@ -12,7 +12,9 @@
 // <summary></summary>
 // ***********************************************************************
 #pragma once
+
 using namespace System;
+
 namespace OpenCKMS {
 
 	using CryptContext = int;
@@ -25,19 +27,19 @@ namespace OpenCKMS {
 	using CryptEnvelope = int;
 	using CryptDevice = int;
 
-#pragma region Data Structures
+	#pragma region Data Structures
 
-	public value class AlgorithmCapabilities {
-	public:
-		String^ AlgorithmName;
-		int BlockSize;
-		int MinKeySize;
-		int KeySize;
-		int MaxKeySize;
-};
+		public value class AlgorithmCapabilities {
+			public:
+			String^ AlgorithmName;
+			int BlockSize;
+			int MinKeySize;
+			int KeySize;
+			int MaxKeySize;
+	};
 
 	public value class ObjectInformation {
-	public:
+		public:
 		int Type;
 		int Algorithm;
 		int Mode;
@@ -47,7 +49,7 @@ namespace OpenCKMS {
 	};
 
 	public value class QueryInfo {
-	public:
+		public:
 		String^ AlgorithmName;
 		int BlockSize;
 		int MinimumKeySize;
@@ -56,30 +58,30 @@ namespace OpenCKMS {
 	};
 
 	public value class RsaInfo {
-	public:
+		public:
 		bool IsPublicKey;
 		array<Char>^ Modulus;
 
 	};
 
 	public value class CertificateExtension {
-	public:
+		public:
 		bool IsCritical;
 		String^ Oid;
 		int Length;
 	};
 
 	public ref class ExtendedErrorInformation {
-	public:
+		public:
 		int ErrorCode;
 		int ErrorType;
 		int ErrorLocus;
 		String^ ErrorDescription;
 	};
 
-#pragma endregion
+	#pragma endregion
 
-#pragma region Enumerations
+	#pragma region Enumerations
 
 	public enum class Algorithm {
 		None = 0, // No encryption
@@ -924,287 +926,270 @@ namespace OpenCKMS {
 		LastExternal = Create + 1
 	};
 
-#pragma endregion
+	#pragma endregion
 
-#pragma region Exceptions
-	
+	#pragma region Exceptions
+
 	[Serializable]
 	public ref class CryptographicException : public Exception
 	{
-	public:
+		public:
 		CryptographicException() : Exception() {}
-		CryptographicException(String^ message) : Exception(message) {}
-		CryptographicException(String^ message, Exception^ inner) : Exception(message, inner) {}
+	CryptographicException(String^ message) : Exception(message) {}
+	CryptographicException(String^ message, Exception^ inner) : Exception(message, inner) {}
 
-		void AddExtendedErrorInformation(ExtendedErrorInformation^ errorInfo)
-		{
-			Data->Add("Error Code", errorInfo->ErrorCode);
-			Data->Add("Error Type", errorInfo->ErrorType);
-			Data->Add("Error Locus", errorInfo->ErrorLocus);
-			Data->Add("Error Description", errorInfo->ErrorDescription);
-		}
+	void AddExtendedErrorInformation(ExtendedErrorInformation^ errorInfo)
+	{
+		Data->Add("Error Code", errorInfo->ErrorCode);
+		Data->Add("Error Type", errorInfo->ErrorType);
+		Data->Add("Error Locus", errorInfo->ErrorLocus);
+		Data->Add("Error Description", errorInfo->ErrorDescription);
+	}
 
 	protected:
-		CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context) {}
+	CryptographicException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : Exception(info, context) {}
 	};
 
-#pragma endregion
+	#pragma endregion
 
 	public ref class Cryptography
 	{
-	public:
-	/* Constructors */
-	Cryptography();
-	~Cryptography();
-	Cryptography(const Cryptography%);
-		
-
-	/****************************************************************************
-	*																			*
-	*						Constant Values										*
-	*																			*
-	****************************************************************************/
-
-	/* The maximum user key size - 2048 bits */
-	static const int MaxKeySize = 256;
-
-	/* The maximum IV/cipher block size - 256 bits */
-	static const int MaxIvSize = 32;
-
-	/* The maximum public-key component size - 4096 bits, and maximum component
-	size for ECCs - 576 bits (to handle the P521 curve) */
-	static const int MaxPkcSize = 512;
-	static const int MaxPckSizeEcc = 72;
-
-	/* The maximum hash size - 512 bits.  Before 3.4 this was 256 bits, in the
-	3.4 release it was increased to 512 bits to accommodate SHA-3 */
-	static const int MaxHashSize = 64;
-
-	/* The maximum size of a text string (e.g.key owner name) */
-	static const int MaxTextSize = 64;
-
-	/* A magic value indicating that the default setting for this parameter
-	should be used.  The parentheses are to catch potential erroneous use
-	in an expression */
-	static const int UseDefault = -100;
-
-	/* A magic value for unused parameters */
-	static const int Unused = -101;
-
-	/* Cursor positioning codes for certificate/CRL extensions.  The parentheses
-	are to catch potential erroneous use in an expression */
-	static const int CursorFirst = -200;
-	static const int CursorPrevious = -201;
-	static const int CursorNext = -202;
-	static const int CursorLast = -203;
-
-	/* The type of information polling to perform to get random seed
-	information.  These values have to be negative because they're used
-	as magic length values for cryptAddRandom().  The parentheses are to
-	catch potential erroneous use in an expression */
-	static const int RandomFastPoll = -300;
-	static const int RandomSlowPoll = -301;
-
-	/* Whether the PKC key is a  or private key */
-
-	static const int PrivateKeyType = 0;
-	static const int PublicKeyType = 1;
-
-	/* Keyset open options */
-	static const int KeyOptionNone = 0; // No options
-	static const int KeyOptionReadOnly = 1; // Open keyset in read-only mode
-	static const int KeyOptionCreate = 2; // Create a new keyset
-	static const int KeyOptionLast = 3; // Last possible key option type
-
-	static const int EccCurveNone = 0; // No ECC curve type                       
-	static const int EccCurveP256 = 1; // NIST P256/X9.62 P256v1/SECG p256r1 curve
-	static const int EccCurveP384 = 2; // NIST P384, SECG p384r1 curve            
-	static const int EccCurveP521 = 3; // NIST P521, SECG p521r1                  
-	static const int EccCurveBrainPoolP256 = 4; // Brainpool p256r1                        
-	static const int EccCurveBrainPoolP384 = 5; // Brainpool p384r1                        
-	static const int EccCurveBrainPoolP512 = 6; // Brainpool p512r1                        
-	static const int EccCurveLast = 7; // Last valid ECC curve type               
-
-	/* No error in function call */
-	static const int OK = 0; // No error
-
-	/* Error in parameters passed to function.  The parentheses are to catch
-	potential erroneous use in an expression */
-	static const int ErrorParam1 = -1; // Bad argument, parameter 1
-	static const int ErrorParam2 = -2; // Bad argument, parameter 2
-	static const int ErrorParam3 = -3; // Bad argument, parameter 3
-	static const int ErrorParam4 = -4; // Bad argument, parameter 4
-	static const int ErrorParam5 = -5; // Bad argument, parameter 5
-	static const int ErrorParam6 = -6; // Bad argument, parameter 6
-	static const int ErrorParam7 = -7; // Bad argument, parameter 7
-
-	/* Errors due to insufficient resources */
-	static const int ErrorMemory = -10; // Out of memory
-	static const int ErrorNotinited = -11; // Data has not been initialised
-	static const int ErrorInited = -12; // Data has already been init'd
-	static const int ErrorNoSecure = -13; // Opn.not avail.at requested sec.level
-	static const int ErrorRandom = -14; // No reliable random data available
-	static const int ErrorFailed = -15; // Operation failed
-	static const int ErrorInternal = -16; // Internal consistency check failed
-
-	/* Security violations */
-	static const int ErrorNotAvail = -20; // This type of opn.not available
-	static const int ErrorPermission = -21; // No permiss.to perform this operation
-	static const int ErrorWrongKey = -22; // Incorrect key used to decrypt data
-	static const int ErrorIncomplete = -23; // Operation incomplete/still in progress
-	static const int ErrorComplete = -24; // Operation complete/can't continue
-	static const int ErrorTimeout = -25; // Operation timed out before completion
-	static const int ErrorInvalid = -26; // Invalid/inconsistent information
-	static const int ErrorSignaled = -27; // Resource destroyed by extnl.event
+		public:
+		/* Constructors */
+		Cryptography();
+		~Cryptography();
+		Cryptography(const Cryptography%);
+
+	#pragma region Constant Values
+
+		/* The maximum user key size - 2048 bits */
+		static const int MaxKeySize = 256;
+
+		/* The maximum IV/cipher block size - 256 bits */
+		static const int MaxIvSize = 32;
+
+		/* The maximum public-key component size - 4096 bits, and maximum component
+		size for ECCs - 576 bits (to handle the P521 curve) */
+		static const int MaxPkcSize = 512;
+		static const int MaxPckSizeEcc = 72;
+
+		/* The maximum hash size - 512 bits.  Before 3.4 this was 256 bits, in the
+		3.4 release it was increased to 512 bits to accommodate SHA-3 */
+		static const int MaxHashSize = 64;
+
+		/* The maximum size of a text string (e.g.key owner name) */
+		static const int MaxTextSize = 64;
+
+		/* A magic value indicating that the default setting for this parameter
+		should be used.  The parentheses are to catch potential erroneous use
+		in an expression */
+		static const int UseDefault = -100;
+
+		/* A magic value for unused parameters */
+		static const int Unused = -101;
+
+		/* Cursor positioning codes for certificate/CRL extensions.  The parentheses
+		are to catch potential erroneous use in an expression */
+		static const int CursorFirst = -200;
+		static const int CursorPrevious = -201;
+		static const int CursorNext = -202;
+		static const int CursorLast = -203;
+
+		/* The type of information polling to perform to get random seed
+		information.  These values have to be negative because they're used
+		as magic length values for cryptAddRandom().  The parentheses are to
+		catch potential erroneous use in an expression */
+		static const int RandomFastPoll = -300;
+		static const int RandomSlowPoll = -301;
+
+		/* Whether the PKC key is a  or private key */
+
+		static const int PrivateKeyType = 0;
+		static const int PublicKeyType = 1;
+
+		/* Keyset open options */
+		static const int KeyOptionNone = 0; // No options
+		static const int KeyOptionReadOnly = 1; // Open keyset in read-only mode
+		static const int KeyOptionCreate = 2; // Create a new keyset
+		static const int KeyOptionLast = 3; // Last possible key option type
+
+		static const int EccCurveNone = 0; // No ECC curve type                       
+		static const int EccCurveP256 = 1; // NIST P256/X9.62 P256v1/SECG p256r1 curve
+		static const int EccCurveP384 = 2; // NIST P384, SECG p384r1 curve            
+		static const int EccCurveP521 = 3; // NIST P521, SECG p521r1                  
+		static const int EccCurveBrainPoolP256 = 4; // Brainpool p256r1                        
+		static const int EccCurveBrainPoolP384 = 5; // Brainpool p384r1                        
+		static const int EccCurveBrainPoolP512 = 6; // Brainpool p512r1                        
+		static const int EccCurveLast = 7; // Last valid ECC curve type               
+
+		/* No error in function call */
+		static const int OK = 0; // No error
+
+		/* Error in parameters passed to function.  The parentheses are to catch
+		potential erroneous use in an expression */
+		static const int ErrorParam1 = -1; // Bad argument, parameter 1
+		static const int ErrorParam2 = -2; // Bad argument, parameter 2
+		static const int ErrorParam3 = -3; // Bad argument, parameter 3
+		static const int ErrorParam4 = -4; // Bad argument, parameter 4
+		static const int ErrorParam5 = -5; // Bad argument, parameter 5
+		static const int ErrorParam6 = -6; // Bad argument, parameter 6
+		static const int ErrorParam7 = -7; // Bad argument, parameter 7
 
-	/* High-level function errors */
-	static const int ErrorOverflow = -30; // Resources/space exhausted
-	static const int ErrorUnderflow = -31; // Not enough data available
-	static const int ErrorBadData = -32; // Bad/unrecognised data format
-	static const int ErrorSignature = -33; // Signature/integrity check failed
+		/* Errors due to insufficient resources */
+		static const int ErrorMemory = -10; // Out of memory
+		static const int ErrorNotinited = -11; // Data has not been initialised
+		static const int ErrorInited = -12; // Data has already been init'd
+		static const int ErrorNoSecure = -13; // Opn.not avail.at requested sec.level
+		static const int ErrorRandom = -14; // No reliable random data available
+		static const int ErrorFailed = -15; // Operation failed
+		static const int ErrorInternal = -16; // Internal consistency check failed
 
-	/* Data access function errors */
-	static const int ErrorOpen = -40; // Cannot open object
-	static const int ErrorRead = -41; // Cannot read item from object
-	static const int ErrorWrite = -42; // Cannot write item to object
-	static const int ErrorNotFound = -43; // Requested item not found in object
-	static const int ErrorDuplicate = -44; // Item already present in object
+		/* Security violations */
+		static const int ErrorNotAvail = -20; // This type of opn.not available
+		static const int ErrorPermission = -21; // No permiss.to perform this operation
+		static const int ErrorWrongKey = -22; // Incorrect key used to decrypt data
+		static const int ErrorIncomplete = -23; // Operation incomplete/still in progress
+		static const int ErrorComplete = -24; // Operation complete/can't continue
+		static const int ErrorTimeout = -25; // Operation timed out before completion
+		static const int ErrorInvalid = -26; // Invalid/inconsistent information
+		static const int ErrorSignaled = -27; // Resource destroyed by extnl.event
 
-	/* Data enveloping errors */
-	static const int EnvelopeResource = -50; // Need resource to proceed
+		/* High-level function errors */
+		static const int ErrorOverflow = -30; // Resources/space exhausted
+		static const int ErrorUnderflow = -31; // Not enough data available
+		static const int ErrorBadData = -32; // Bad/unrecognised data format
+		static const int ErrorSignature = -33; // Signature/integrity check failed
 
-	/****************************************************************************
-	*																			*
-	*						General Functions									*
-	*																			*
-	****************************************************************************/
-	AlgorithmCapabilities ^ QueryCapability(Algorithm algorithm);
-	CryptContext CreateContext(CryptUser user, Algorithm algorithm);
-	void DestroyContext(CryptContext context);
-	void DestroyObject(CryptObject object);
-	void GenerateKey(CryptContext context, String^ label);
-	array<Byte>^ Encrypt(String^ keyId, String^ data);
-	array<Byte>^ Encrypt(String^ keyId, array<Byte>^ data);
-	array<Byte>^ Decrypt(CryptContext context, array<Byte>^ data, int dataLength);
-	void SetAttribute(CryptHandle handle, AttributeType attributeType, int value);
-	void SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value);
-	int GetAttribute(CryptHandle handle, AttributeType attributeType);
-	String^ GetAttributeString(CryptHandle handle, AttributeType attributeType);
-	void DeleteAttribute(CryptHandle handle, AttributeType attributeType);
+		/* Data access function errors */
+		static const int ErrorOpen = -40; // Cannot open object
+		static const int ErrorRead = -41; // Cannot read item from object
+		static const int ErrorWrite = -42; // Cannot write item to object
+		static const int ErrorNotFound = -43; // Requested item not found in object
+		static const int ErrorDuplicate = -44; // Item already present in object
 
-	/****************************************************************************
-	*																			*
-	*						Mid-level Encryption Functions						*
-	*																			*
-	****************************************************************************/
+		/* Data enveloping errors */
+		static const int EnvelopeResource = -50; // Need resource to proceed
 
-	/* Export and import an encrypted session key */
+	#pragma endregion
 
-	array<Byte>^ ExportKey(CryptHandle exportKey, CryptContext sessionKeyContext);
-	array<Byte>^ ExportKey(CryptHandle exportKey, int maximumKeyLength, int keyLength,
-		Format keyFormat, CryptHandle exportKeyHandle, CryptContext sessionKeyContext);
+	#pragma region General Functions
 
-	CryptContext ImportKey(array<Byte>^ encryptedKey, int encryptedKeyLength, CryptContext importKeyContext,
-		SessionContext sessionKeyContext);
+		AlgorithmCapabilities ^ QueryCapability(Algorithm algorithm);
+		CryptContext CreateContext(CryptUser user, Algorithm algorithm);
+		void DestroyContext(CryptContext context);
+		void DestroyObject(CryptObject object);
+		void GenerateKey(CryptContext context, String^ label);
+		array<Byte>^ Encrypt(String^ keyId, String^ recipient, String^ data);
+		array<Byte>^ Encrypt(String^ keyId, String^ recipient, array<Byte>^ data);
+		array<Byte>^ Decrypt(CryptContext context, array<Byte>^ data, int dataLength);
+		void SetAttribute(CryptHandle handle, AttributeType attributeType, int value);
+		void SetAttribute(CryptHandle handle, AttributeType attributeType, String^ value);
+		int GetAttribute(CryptHandle handle, AttributeType attributeType);
+		String^ GetAttributeString(CryptHandle handle, AttributeType attributeType);
+		void DeleteAttribute(CryptHandle handle, AttributeType attributeType);
 
-	/* Create and check a digital signature */
+	#pragma endregion
 
-	array<Byte>^ CreateSignature(int signatureMaxLength, Format formatType, CryptContext signatureContext,
-		CryptContext hashContext, CryptCertificate extraData);
+	#pragma region Mid-level Encryption Functions
 
-	CryptContext CheckSignature(array<Byte>^ signature, int signatureLength, CryptHandle signatureCheckKey, CryptContext hashContext);
+		/* Export and import an encrypted session key */
 
-	/****************************************************************************
-	*																			*
-	*									Keyset Functions						*
-	*																			*
-	****************************************************************************/
+		array<Byte>^ ExportKey(CryptHandle exportKey, CryptContext sessionKeyContext);
+		array<Byte>^ ExportKey(CryptHandle exportKey, int maximumKeyLength, int keyLength,
+			Format keyFormat, CryptHandle exportKeyHandle, CryptContext sessionKeyContext);
 
-	CryptKeyset KeysetOpen(KeysetType^ keysetType, String^ name, KeysetOption keysetOptions );
+		CryptContext ImportKey(array<Byte>^ encryptedKey, int encryptedKeyLength, CryptContext importKeyContext,
+			SessionContext sessionKeyContext);
 
-	void KeysetClose(CryptKeyset keyset);
+		/* Create and check a digital signature */
 
-	CryptContext GetPublicKey(CryptKeyset keyset, KeyIdType keyIdType, String^ KeyId);
+		array<Byte>^ CreateSignature(int signatureMaxLength, Format formatType, CryptContext signatureContext,
+			CryptContext hashContext, CryptCertificate extraData);
 
-	CryptContext GetPrivateKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId, String^ password);
+		CryptContext CheckSignature(array<Byte>^ signature, int signatureLength, CryptHandle signatureCheckKey, CryptContext hashContext);
 
-	void AddPublicKey(CryptKeyset keyset, CryptCertificate certificate);
+	#pragma endregion
 
-	void AddPrivateKey(CryptKeyset keyset, CryptHandle key, String^ password);
+	#pragma region Keyset Functions
 
-	void DeleteKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId);
+		CryptKeyset KeysetOpen(KeysetType^ keysetType, String^ name, KeysetOption keysetOptions );
 
-	/****************************************************************************
-	*																			*
-	*								Certificate Functions						*
-	*																			*
-	****************************************************************************/
+		void KeysetClose(CryptKeyset keyset);
 
-	CryptCertificate CreateCertificate(CryptUser user, CertificateType certificateType);
+		CryptContext GetPublicKey(CryptKeyset keyset, KeyIdType keyIdType, String^ KeyId);
 
-	void DestroyCertificate(CryptCertificate certificate);
+		CryptContext GetPrivateKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId, String^ password);
 
-	CertificateExtension GetCertificateExtension(CryptCertificate certificate, String^ oid, int extensionMaximumLength);
+		void AddPublicKey(CryptKeyset keyset, CryptCertificate certificate);
 
-	void AddCertificateExtension(CryptCertificate certificate, String^ oid, bool isCritical, String^ extension, int extensionMaximumLength);
+		void AddPrivateKey(CryptKeyset keyset, CryptHandle key, String^ password);
 
-	void DeleteCertificateExtension(CryptCertificate certificate, String^ oid);
+		void DeleteKey(CryptKeyset keyset, KeyIdType keyIdType, String^ keyId);
 
-	void SignCertificate(CryptCertificate certificate, CryptContext certificateContext);
+	#pragma endregion
 
-	void CheckCertificateSignature(CryptCertificate certificate, CryptHandle signatureCheckKey);
+	#pragma region Certificate Functions
 
-	CryptCertificate ImportCertificate(array<Byte>^ certificateObject, int certificateObjectLength, CryptUser user);
+		CryptCertificate CreateCertificate(CryptUser user, CertificateType certificateType);
 
-	array<Byte>^ ExportCertificate(int certificateObjectMaxLength, CertificateType certificateType, CryptCertificate certificate);
+		void DestroyCertificate(CryptCertificate certificate);
 
-	void AddCertificationAuthorityItem(CryptKeyset keyset, CryptCertificate certificate);
+		CertificateExtension GetCertificateExtension(CryptCertificate certificate, String^ oid, int extensionMaximumLength);
 
-	CryptCertificate GetCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
+		void AddCertificateExtension(CryptCertificate certificate, String^ oid, bool isCritical, String^ extension, int extensionMaximumLength);
 
-	void DeleteCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
+		void DeleteCertificateExtension(CryptCertificate certificate, String^ oid);
 
-	CryptCertificate CertificationAuthorityManagement(CertificateActionType action, CryptKeyset keyset, CryptContext caKey, CryptCertificate certificateRequest);
+		void SignCertificate(CryptCertificate certificate, CryptContext certificateContext);
 
-	/****************************************************************************
-	*																			*
-	*							Envelope and Session Functions					*
-	*																			*
-	****************************************************************************/
+		void CheckCertificateSignature(CryptCertificate certificate, CryptHandle signatureCheckKey);
 
-	CryptEnvelope CreateEnvelope(CryptUser user, Format format);
+		CryptCertificate ImportCertificate(array<Byte>^ certificateObject, int certificateObjectLength, CryptUser user);
 
-	void DestroyEnvelope(CryptEnvelope envelope);
+		array<Byte>^ ExportCertificate(int certificateObjectMaxLength, CertificateType certificateType, CryptCertificate certificate);
 
-	void PushData(CryptHandle envelope, array<Byte>^ data);
+		void AddCertificationAuthorityItem(CryptKeyset keyset, CryptCertificate certificate);
 
-	array<Byte>^ PopData(CryptEnvelope envelope, int length);
+		CryptCertificate GetCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
 
+		void DeleteCertificationAuthorityItem(CryptKeyset keyset, CertificateType certificateType, KeyIdType keyIdType, String^ keyId);
 
-	/****************************************************************************
-	*																			*
-	*								Device Functions							*
-	*																			*
-	****************************************************************************/
+		CryptCertificate CertificationAuthorityManagement(CertificateActionType action, CryptKeyset keyset, CryptContext caKey, CryptCertificate certificateRequest);
 
-	CryptDevice OpenDevice(CryptUser user, CryptDevice device, String^ name);
+	#pragma endregion
 
-	void CloseDevice(CryptDevice device);
+	#pragma region Envelope and Session Functions
 
-	QueryInfo QueryDeviceCapabilities(CryptDevice device, Algorithm algorithm);
+		CryptEnvelope CreateEnvelope(CryptUser user, Format format);
 
-	CryptContext CreateDeviceContext(CryptDevice device, Algorithm algorithm);
+		void DestroyEnvelope(CryptEnvelope envelope);
 
+		void PushData(CryptHandle envelope, array<Byte>^ data);
 
-	/****************************************************************************
-	*																			*
-	*							User Management Functions						*
-	*																			*
-	****************************************************************************/
+		array<Byte>^ PopData(CryptEnvelope envelope, int length);
 
-	CryptUser Login(String^ user, String^ password);
+	#pragma endregion
 
-	void Logout(CryptUser user);
+	#pragma region Device Functions
+
+		CryptDevice OpenDevice(CryptUser user, CryptDevice device, String^ name);
+
+		void CloseDevice(CryptDevice device);
+
+		QueryInfo QueryDeviceCapabilities(CryptDevice device, Algorithm algorithm);
+
+		CryptContext CreateDeviceContext(CryptDevice device, Algorithm algorithm);
+
+	#pragma endregion
+
+	#pragma region User Management Functions
+
+		CryptUser Login(String^ user, String^ password);
+
+		void Logout(CryptUser user);
+
+	#pragma endregion
+
 	};
 
 }
