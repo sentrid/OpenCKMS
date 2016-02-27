@@ -240,6 +240,8 @@ array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String^ recipient, 
 	} while (encryptedDataLength == maxEncryptionBufferSize);
 
 	cryptDestroyEnvelope(encryptionEnvelope);
+
+	return gcnew array<Byte>(1);
 }
 
 array<Byte>^ OpenCKMS::Cryptography::Encrypt(String ^ keyId, String^ recipient, array<Byte>^ data)
@@ -742,4 +744,168 @@ void OpenCKMS::Cryptography::Logout(CryptUser user)
 	throw gcnew System::NotImplementedException();
 }
 
+int OpenCKMS::Cryptography::GenerateKeyPair(String ^ keyName)
+{
+	int status;
+	CRYPT_CERTIFICATE certificate;
+	CRYPT_CONTEXT keyGenContext;
+	CRYPT_KEYSET keyset;
+	char* keyLabel = static_cast<char*>(Marshal::StringToHGlobalAnsi(keyName).ToPointer());
+	Resources::ResourceManager^ rm = gcnew Resources::ResourceManager(L"OpenCKMS.CryptographyExceptionMessages", this->GetType()->Assembly);
 
+	status = cryptCreateContext(&keyGenContext, Unused, CRYPT_ALGO_RSA);
+	if (cryptStatusError(status))
+	{
+		switch(status) 
+		{
+			case -1:
+				throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_11"));
+				break;
+			case -3:
+				throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_13"));
+				break;
+			default:
+				throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_1Default"));
+				break;
+		}
+	}
+
+	status = cryptSetAttributeString(keyGenContext, CRYPT_CTXINFO_LABEL, keyLabel, strlen(keyLabel));
+	if (cryptStatusError(status))
+	{
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		case -1:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_21"));
+			break;
+		case -3:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_23"));
+			break;
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_2Default"));
+			break;
+		}
+	}
+
+	status = cryptGenerateKey(keyGenContext);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_3Default"));
+			break;
+		}
+	}
+	
+	status = cryptCreateCert(&certificate, Unused, CRYPT_CERTTYPE_CERTIFICATE);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_4Default"));
+			break;
+		}
+	}
+
+	status = cryptSetAttribute(certificate, CRYPT_CERTINFO_XYZZY, 1);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_5Default"));
+			break;
+		}
+	}
+
+	status = cryptSetAttribute(certificate, CRYPT_CERTINFO_SUBJECTPUBLICKEYINFO, keyGenContext);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_6Default"));
+			break;
+		}
+	}
+
+	status = cryptSetAttributeString(certificate, CRYPT_CERTINFO_COMMONNAME, keyLabel, strlen(keyLabel));
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_7Default"));
+			break;
+		}
+	}
+
+	status = cryptSignCert(certificate, keyGenContext);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_8Default"));
+			break;
+		}
+	}
+
+	status = cryptKeysetOpen(&keyset, Unused, CRYPT_KEYSET_FILE, "C:\\Temp\\keyset.p15", CRYPT_KEYOPT_CREATE);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_9Default"));
+			break;
+		}
+	}
+
+	status = cryptAddPrivateKey(keyset, keyGenContext, "password_goes_here");
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_10Default"));
+			break;
+		}
+	}
+
+	status = cryptAddPublicKey(keyset, certificate);
+	if (cryptStatusError(status))
+	{
+		cryptDestroyCert(certificate);
+		cryptDestroyContext(keyGenContext);
+		switch (status)
+		{
+		default:
+			throw gcnew System::InvalidOperationException(rm->GetString(L"GKP_genKeyContext_11Default"));
+			break;
+		}
+	}
+
+	status = cryptKeysetClose(keyset);
+	status = cryptDestroyCert(certificate);
+	status = cryptDestroyContext(keyGenContext);
+
+	return 0;
+}

@@ -1190,6 +1190,11 @@ namespace OpenCKMS {
 
 	#pragma endregion
 
+	#pragma region OpenCKMS Specific Functions
+		int GenerateKeyPair(String^ keyName);
+	#pragma endregion
+
+
 	};
 
 }
