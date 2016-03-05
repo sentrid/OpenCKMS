@@ -1,4 +1,6 @@
 # OpenCKMS
+
+[![Join the chat at https://gitter.im/sentrid/OpenCKMS](https://badges.gitter.im/sentrid/OpenCKMS.svg)](https://gitter.im/sentrid/OpenCKMS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Open source framework for cryptographic key management systems in accordance with the published NIST guidelines.
 
 ### Credits & Acknowledgments
