@@ -55,19 +55,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="cryptlib.cs" />
+    <Compile Include="EventEpochs.cs" />
     <Compile Include="KeyFormat.cs" />
     <Compile Include="KeyManager.cs" />
     <Compile Include="KeyMetadata.cs" />
     <Compile Include="KeyProtection.cs" />
     <Compile Include="KeyType.cs" />
     <Compile Include="KeyLifecycleState.cs" />
+    <Compile Include="MetadataProtection.cs" />
     <Compile Include="ParentKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrustedAssociationProtection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="documentation\openckms.dxp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties DocumentXCommentEditorState="&lt;HtmlEditState&gt;&#xA;  &lt;Attributes /&gt;&#xA;&lt;/HtmlEditState&gt;" />
+      <UserProperties DocumentXCommentEditorState="&lt;HtmlEditState&gt;&#xA;  &lt;Attributes&gt;&#xA;    &lt;Attribute key=&quot;scrollPosition&quot; valuetype=&quot;integer&quot;&gt;0&lt;/Attribute&gt;&#xA;  &lt;/Attributes&gt;&#xA;&lt;/HtmlEditState&gt;" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
