@@ -18,7 +18,7 @@ namespace OpenCKMS
     /// <summary>
     /// Struct ParentKey
     /// </summary>
-    public struct ParentKey
+    public class ParentKey
     {
         /// <summary>
         /// The identifier for the parent key.
