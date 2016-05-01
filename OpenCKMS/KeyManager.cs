@@ -17,7 +17,7 @@ namespace OpenCKMS
     /// <summary>
     /// Class KeyManager.
     /// </summary>
-    public class KeyManager
+    public class KeyManager 
     {
          
     }
