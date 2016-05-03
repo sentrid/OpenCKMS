@@ -14,4 +14,4 @@ Cryptlib is the work of Peter Guttman (https://www.cs.auckland.ac.nz/~pgut001/cr
 ####Thanks to
 
 ![alt text](http://structure101.com/images/s101_170.png)<br>
-Structure 101 for granting a ReStructure 101 license to the project. 
+Structure101 for granting a Structure101 Studio license to the project. 
