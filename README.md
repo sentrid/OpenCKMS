@@ -8,10 +8,10 @@ OpenCKMS is an open source framework for cryptographic key management systems in
 
 
 
-### Credits & Acknowledgments
+## Credits & Acknowledgments
 Cryptlib is the work of Peter Guttman (https://www.cs.auckland.ac.nz/~pgut001/cryptlib/)
 
-####Thanks to
+##Thanks to
 
 <a href="http://structure101.com"><img src="http://structure101.com/images/s101_170.png" /></a><br>
 Structure101 for granting a Structure101 Studio license to the project. 
