@@ -16,5 +16,5 @@ Cryptlib is the work of Peter Guttman (https://www.cs.auckland.ac.nz/~pgut001/cr
 <a href="http://structure101.com"><img src="http://structure101.com/images/s101_170.png" /></a><br>
 Structure101 for granting a Structure101 Studio license to the project. 
 
-<a href="http://bitrock.com"><img src="https://github.com/sentrid/OpenCKMS/blob/master/installersby_tiny.png?raw=true" /></a><br>
+<a href="https://installbuilder.bitrock.com/"><img src="https://github.com/sentrid/OpenCKMS/blob/master/installersby_tiny.png?raw=true" /></a><br>
 BitRock for granting a BitRock Cross Platform Installer license to the project.
